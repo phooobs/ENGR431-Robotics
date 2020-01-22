@@ -45,15 +45,21 @@ void loop() {
       if (lastMode != 2) { // mode change, print
         lastMode = 2;
         Serial.println("L");
-        motor(255, 0);
       }
+      motor(255, 0);
       break;
     case 3: // fade from green to blue depending on potentiometer
       if (lastMode != 3) { // mode change, print
         lastMode = 3;
         Serial.println("both");
-        motor(255, 255);
       }
+      int left = analogRead(A1);
+      int right = analogRead(A0);
+      Serial.print(left);
+      Serial.print(" ");
+      Serial.print(right);
+      Serial.println();
+      motor(map(-left, -400, -300, -255, 255), map(-right, -400, -300, -255, 255));
       break;
   }
 }
