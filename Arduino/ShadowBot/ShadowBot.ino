@@ -3,19 +3,19 @@ const int switch1 = 9; // pin connected to switch 1
 
 const int potPin = A0; // pin connected to potentiometer
 
-const int dirL = 2;
-const int dirR = 4;
-const int pwmL = 11;
-const int pwmR = 3;
+const int dirL = 2; // left motor direction pin
+const int dirR = 4; // right motor direction pin
+const int pwmL = 11; // left motor speed pin
+const int pwmR = 3; // right motor speed pin
 
-void motor(int left, int right);
+void motor(int left, int right); // converts signals in range(-255, 255) to motor pon signals 
 
 void setup() {
+  // setup pins
   pinMode(dirL, OUTPUT);
   pinMode(dirR, OUTPUT);
   pinMode(pwmL, OUTPUT);
   pinMode(pwmR, OUTPUT);
-
   pinMode(switch0, INPUT);
   pinMode(switch1, INPUT);
   pinMode(potPin, INPUT);
@@ -51,7 +51,7 @@ void loop() {
     case 3: // fade from green to blue depending on potentiometer
       if (lastMode != 3) { // mode change, print
         lastMode = 3;
-        Serial.println("both");
+        Serial.println("crappy obsticle avoid");
       }
       int left = analogRead(A1);
       int right = analogRead(A0);
@@ -64,7 +64,7 @@ void loop() {
   }
 }
 
-void motor(int left, int right) {
+void motor(int left, int right) { // converts signals in range(-255, 255) to motor pon signals 
   if (left < 0) {
     digitalWrite(dirL, LOW);
     analogWrite(pwmL, abs(left));
