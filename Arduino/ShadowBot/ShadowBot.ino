@@ -37,16 +37,19 @@ void loop() {
     case 1: // turn on one LED at a time moving across all four LEDs
       if (lastMode != 1) { // mode change, print
         lastMode = 1;
-        Serial.println("R");
+        Serial.println("Wiggle");
       }
-      motor(0, 255);
+      motor(((millis() / 250) % 2 - 0.5) * 255 * 2, (((millis() + 250) / 250) % 2 - 0.5) * 255 * 2); // wiggle
+      
       break;
     case 2: // turn LEDs in order to represent an increasing number changes speed depending on potentiometer
       if (lastMode != 2) { // mode change, print
         lastMode = 2;
-        Serial.println("L");
+        Serial.println("Straif");
       }
-      motor(255, 0);
+      Serial.print(sin(millis() / 200.0) * 255);
+      Serial.println();
+      motor(((millis() / 500) % 2 - 0.5) * 255 * 2, (((millis() + 250) / 500) % 2 - 0.5) * 255 * 2); // try  to drive sideways 
       break;
     case 3: // fade from green to blue depending on potentiometer
       if (lastMode != 3) { // mode change, print
