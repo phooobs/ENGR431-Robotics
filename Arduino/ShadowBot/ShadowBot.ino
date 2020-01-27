@@ -37,32 +37,23 @@ void loop() {
     case 1: // turn on one LED at a time moving across all four LEDs
       if (lastMode != 1) { // mode change, print
         lastMode = 1;
-        Serial.println("Wiggle");
+        Serial.println("Straight and speed");
       }
-      motor(((millis() / 250) % 2 - 0.5) * 255 * 2, (((millis() + 250) / 250) % 2 - 0.5) * 255 * 2); // wiggle
-      
+      motor(0, 0);
       break;
     case 2: // turn LEDs in order to represent an increasing number changes speed depending on potentiometer
       if (lastMode != 2) { // mode change, print
         lastMode = 2;
-        Serial.println("Straif");
+        Serial.println("Pivot and turn test");
       }
-      Serial.print(sin(millis() / 200.0) * 255);
-      Serial.println();
-      motor(((millis() / 500) % 2 - 0.5) * 255 * 2, (((millis() + 250) / 500) % 2 - 0.5) * 255 * 2); // try  to drive sideways 
+      motor(0, 0);
       break;
     case 3: // fade from green to blue depending on potentiometer
       if (lastMode != 3) { // mode change, print
         lastMode = 3;
-        Serial.println("crappy obsticle avoid");
+        Serial.println("Follow the wall test");
       }
-      int left = analogRead(A1);
-      int right = analogRead(A0);
-      Serial.print(left);
-      Serial.print(" ");
-      Serial.print(right);
-      Serial.println();
-      motor(map(-left, -400, -300, -255, 255), map(-right, -400, -300, -255, 255));
+      motor(0, 0);
       break;
   }
 }
