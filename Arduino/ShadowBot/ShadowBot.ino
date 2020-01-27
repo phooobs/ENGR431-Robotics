@@ -21,6 +21,7 @@ void setup() {
   pinMode(switch0, INPUT);
   pinMode(switch1, INPUT);
   pinMode(potPin, INPUT);
+  pinMode(led, OUTPUT);
   
   Serial.begin(9600); // open serial port
   while(!Serial) {} // wait till serial port has connected
@@ -33,13 +34,23 @@ void loop() {
       if (lastMode != 0) { // mode change, print
         lastMode = 0;
         Serial.println("off");
+        delay(3000);
       }
+      static bool toggle;
+      if (toggle) {
+        toggle = false;
+      } else {
+        toggle = true;
+      }
+      digitalWrite(led, toggle);
       motor(0, 0);
+      delay(500);
       break;
     case 1: // turn on one LED at a time moving across all four LEDs
       if (lastMode != 1) { // mode change, print
         lastMode = 1;
         Serial.println("Straight and speed");
+        delay(3000);
       }
       motor(0, 0);
       break;
@@ -47,6 +58,7 @@ void loop() {
       if (lastMode != 2) { // mode change, print
         lastMode = 2;
         Serial.println("Pivot and turn test");
+        delay(3000);
       }
       motor(0, 0);
       break;
@@ -54,6 +66,7 @@ void loop() {
       if (lastMode != 3) { // mode change, print
         lastMode = 3;
         Serial.println("Follow the wall test");
+        delay(3000);
       }
       motor(0, 0);
       break;
