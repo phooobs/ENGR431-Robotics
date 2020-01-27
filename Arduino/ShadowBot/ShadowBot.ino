@@ -30,7 +30,7 @@ void setup() {
 void loop() {
   static int lastMode = -1; // keep track of what mode we are on so when there is a change it can be detected, -1 means no last mode
   switch(2 * digitalRead(switch1) + digitalRead(switch0)){ // get input from switches and convert to mode number
-    case 0: // 00 Sit, eait and blink, repeat.
+    case 0: // 00 Sit, wait and blink, repeat.
       if (lastMode != 0) { // mode change, print
         lastMode = 0;
         Serial.println("off");
