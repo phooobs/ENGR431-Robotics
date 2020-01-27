@@ -30,7 +30,7 @@ void setup() {
 void loop() {
   static int lastMode = -1; // keep track of what mode we are on so when there is a change it can be detected, -1 means no last mode
   switch(2 * digitalRead(switch1) + digitalRead(switch0)){ // get input from switches and convert to mode number
-    case 0: // randomize all LEDs
+    case 0: // 00 Sit, eait and blink, repeat.
       if (lastMode != 0) { // mode change, print
         lastMode = 0;
         Serial.println("off");
@@ -46,7 +46,7 @@ void loop() {
       motor(0, 0);
       delay(500);
       break;
-    case 1: // turn on one LED at a time moving across all four LEDs
+    case 1: // 01 Straight and speed test.
       if (lastMode != 1) { // mode change, print
         lastMode = 1;
         Serial.println("Straight and speed");
@@ -54,7 +54,7 @@ void loop() {
       }
       motor(0, 0);
       break;
-    case 2: // turn LEDs in order to represent an increasing number changes speed depending on potentiometer
+    case 2: // 10 Pivot and turn test
       if (lastMode != 2) { // mode change, print
         lastMode = 2;
         Serial.println("Pivot and turn test");
@@ -62,8 +62,8 @@ void loop() {
       }
       motor(0, 0);
       break;
-    case 3: // fade from green to blue depending on potentiometer
-      if (lastMode != 3) { // mode change, print
+    case 3: // 11 Follow the wall test
+      if (lastMode != 3) { // 11 Follow the wall test
         lastMode = 3;
         Serial.println("Follow the wall test");
         delay(3000);
