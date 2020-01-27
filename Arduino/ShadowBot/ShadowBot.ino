@@ -8,6 +8,8 @@ const int dirR = 4; // right motor direction pin
 const int pwmL = 11; // left motor speed pin
 const int pwmR = 3; // right motor speed pin
 
+const int led = 12;
+
 void motor(int left, int right); // converts signals in range(-255, 255) to motor pon signals 
 
 void setup() {
