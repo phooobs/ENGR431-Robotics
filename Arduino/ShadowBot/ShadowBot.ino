@@ -33,7 +33,7 @@ void loop() {
     case 0: // 00 Sit, wait and blink, repeat.
       if (lastMode != 0) { // mode change, print
         lastMode = 0;
-        Serial.println("off");
+        Serial.println("[00] blink and wait");
         delay(3000);
       }
       static bool toggle;
@@ -49,15 +49,16 @@ void loop() {
     case 1: // 01 Straight and speed test.
       if (lastMode != 1) { // mode change, print
         lastMode = 1;
-        Serial.println("Straight and speed");
+        Serial.println("[01] Straight and speed");
         delay(3000);
       }
+      straightSpeedTest();
       motor(0, 0);
       break;
     case 2: // 10 Pivot and turn test
       if (lastMode != 2) { // mode change, print
         lastMode = 2;
-        Serial.println("Pivot and turn test");
+        Serial.println("[10] Pivot and turn test");
         delay(3000);
       }
       motor(0, 0);
@@ -65,12 +66,19 @@ void loop() {
     case 3: // 11 Follow the wall test
       if (lastMode != 3) { // 11 Follow the wall test
         lastMode = 3;
-        Serial.println("Follow the wall test");
+        Serial.println("[11] Follow the wall test");
         delay(3000);
       }
       motor(0, 0);
       break;
   }
+}
+
+void straightSpeedTest() {
+  digitalWrite(dirL, HIGH);
+  digitalWrite(dirR, LOW);
+  analogWrite(pwmR, 255);
+  analogWrite(pwmL, 240);
 }
 
 void motor(int left, int right) { // converts signals in range(-255, 255) to motor pon signals 
@@ -81,10 +89,12 @@ void motor(int left, int right) { // converts signals in range(-255, 255) to mot
     digitalWrite(dirL, HIGH);
     analogWrite(pwmL, abs(left));
   }
+  
   if (right < 0) {
     digitalWrite(dirR, HIGH);
     analogWrite(pwmR, abs(right));
-  } else {
+  } 
+  else {
     digitalWrite(dirR, LOW);
     analogWrite(pwmR, abs(right));
   }
