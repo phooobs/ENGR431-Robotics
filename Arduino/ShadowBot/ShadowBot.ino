@@ -121,12 +121,14 @@ void straightSpeedTest() {
     motor(i,i);
     delay(3);
   }
-  delay(9400);
+  delay(5400);
   for (int j=100; j>0; j--){
     motor(j,j);
     delay(3);
   }
-  delay(1000);//Done, wait 1 sec
+  
+  delay(3000);//Done, wait 3 sec
+  
   for (int i=0; i<200; i++){
     motor(i,i);
     delay(3);
@@ -137,18 +139,21 @@ void straightSpeedTest() {
     delay(3);
   }
 
-  delay(1000); // Wait
+  delay(3000); // Wait
+  
   //// Go Backwards
   for (int i=0; i<100; i++){
     motor(-i,-i);
     delay(3);
   }
-  delay(9400);
+  delay(5400);
   for (int j=100; j>0; j--){
     motor(-j,-j);
     delay(3);
   }
-  delay(1000); // Wait, 1 sec
+  
+  delay(3000); // Wait, 3 sec
+  
   for (int i=0; i<200; i++){
     motor(-i,-i);
     delay(3);
@@ -166,76 +171,76 @@ void spinBoi() {
   digitalWrite(dirR, LOW); //Right motor reverse
   analogWrite(pwmR, 100);
   analogWrite(pwmL, 100);
-  delay(3460); // spin for about 3.405 seconds [ORIGINAL TIME]
+  delay(3700); // spin for about 3.405 seconds [ORIGINAL TIME]
 
   // Wait 1.5 second
   analogWrite(pwmR, 0);
   analogWrite(pwmL, 0);
-  delay(1500);
+  delay(4000);
 
   // Spin 360 degrees 3 times counterclockwise
   digitalWrite(dirL, HIGH); //Left motor reverse
   digitalWrite(dirR, HIGH); //Right motor forward
   analogWrite(pwmR, 100);
   analogWrite(pwmL, 100);
-  delay(3480); // spin for about 3.405 seconds [ORIGINAL TIME]
+  delay(3800); // spin for about 3.405 seconds [ORIGINAL TIME]
 
   // Wait 1.5 second
   analogWrite(pwmR, 0);
   analogWrite(pwmL, 0);
-  delay(1500);
+  delay(4000);
 
   // turn 90 degrees right using left wheel
   digitalWrite(dirL, LOW); //Left motor forward
   analogWrite(pwmL, 100);
   analogWrite(pwmR, 0);
-  delay(880);
+  delay(1000);
   
   // Wait 1.5 second
   analogWrite(pwmR, 0);
   analogWrite(pwmL, 0);
-  delay(1500);
+  delay(3500);
 
   // turn back -90 degrees using left wheel
   digitalWrite(dirL, HIGH); //Left motor reverse
   analogWrite(pwmL, 100);
   analogWrite(pwmR, 0);
-  delay(770);
+  delay(810);
 
   // Wait 1.5 second
   analogWrite(pwmR, 0);
   analogWrite(pwmL, 0);
-  delay(1500);
+  delay(3500);
 
   // turn left using right wheel
   analogWrite(pwmL, 0);
   analogWrite(pwmR, 100);
-  delay(880);
+  delay(1250);
 
   // Wait 1.5 second
   analogWrite(pwmR, 0);
   analogWrite(pwmL, 0);
-  delay(1500);
+  delay(4000);
   
   // turn back -90 using right wheel 
   digitalWrite(dirR,LOW); // Right motor reverse
   analogWrite(pwmL, 0);
   analogWrite(pwmR, 100);
-  delay(760);
+  delay(815);
 
   // no power to wheels.
   analogWrite(pwmR, 0);
   analogWrite(pwmL, 0);
-  delay(1500);
+  delay(4000);
 }
 
 void motor(int left, int right) { // converts signals in range(-255, 255) to motor pon signals 
   if (left < 0) {
     digitalWrite(dirL, HIGH);
-    analogWrite(pwmL, abs(left * 0.97));
+    analogWrite(pwmL, abs(left * 0.965));
   } else {
     digitalWrite(dirL, LOW);
-    analogWrite(pwmL, abs(left * 0.97));
+    analogWrite(pwmL, abs(left * 0.965));
   }
   
   if (right < 0) {
