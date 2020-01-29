@@ -25,7 +25,6 @@ void setup() {
   pinMode(rightSensor, INPUT);
   pinMode(led, OUTPUT);
   
-  
   Serial.begin(9600); // open serial port
   while(!Serial) {} // wait till serial port has connected
 }
@@ -162,23 +161,72 @@ void straightSpeedTest() {
 }
 
 void spinBoi() {
+  // Spin 360 degrees 3 times clockwise
   digitalWrite(dirL, LOW); //Left motor forward
   digitalWrite(dirR, LOW); //Right motor reverse
-  Serial.println("LM = Forward, RM = Reverse\n");
- 
-  analogWrite(pwmR, 0);
-  analogWrite(pwmL, 0);
-  Serial.println("Waiting 1 second\n");
-  delay(1000);
-  
   analogWrite(pwmR, 100);
   analogWrite(pwmL, 100);
-  delay(3405);
-  
-  Serial.println("<TEST OVER>");
+  delay(3460); // spin for about 3.405 seconds [ORIGINAL TIME]
+
+  // Wait 1.5 second
   analogWrite(pwmR, 0);
   analogWrite(pwmL, 0);
-  Serial.end();
+  delay(1500);
+
+  // Spin 360 degrees 3 times counterclockwise
+  digitalWrite(dirL, HIGH); //Left motor reverse
+  digitalWrite(dirR, HIGH); //Right motor forward
+  analogWrite(pwmR, 100);
+  analogWrite(pwmL, 100);
+  delay(3480); // spin for about 3.405 seconds [ORIGINAL TIME]
+
+  // Wait 1.5 second
+  analogWrite(pwmR, 0);
+  analogWrite(pwmL, 0);
+  delay(1500);
+
+  // turn 90 degrees right using left wheel
+  digitalWrite(dirL, LOW); //Left motor forward
+  analogWrite(pwmL, 100);
+  analogWrite(pwmR, 0);
+  delay(880);
+  
+  // Wait 1.5 second
+  analogWrite(pwmR, 0);
+  analogWrite(pwmL, 0);
+  delay(1500);
+
+  // turn back -90 degrees using left wheel
+  digitalWrite(dirL, HIGH); //Left motor reverse
+  analogWrite(pwmL, 100);
+  analogWrite(pwmR, 0);
+  delay(770);
+
+  // Wait 1.5 second
+  analogWrite(pwmR, 0);
+  analogWrite(pwmL, 0);
+  delay(1500);
+
+  // turn left using right wheel
+  analogWrite(pwmL, 0);
+  analogWrite(pwmR, 100);
+  delay(880);
+
+  // Wait 1.5 second
+  analogWrite(pwmR, 0);
+  analogWrite(pwmL, 0);
+  delay(1500);
+  
+  // turn back -90 using right wheel 
+  digitalWrite(dirR,LOW); // Right motor reverse
+  analogWrite(pwmL, 0);
+  analogWrite(pwmR, 100);
+  delay(760);
+
+  // no power to wheels.
+  analogWrite(pwmR, 0);
+  analogWrite(pwmL, 0);
+  delay(1500);
 }
 
 void motor(int left, int right) { // converts signals in range(-255, 255) to motor pon signals 
