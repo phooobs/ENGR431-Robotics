@@ -60,6 +60,7 @@ void loop() {
         Serial.println("Straight and speed");
         motor(0, 0);
         delay(3000);
+        straightSpeedTest();
       }
       Serial.println(analogRead(rightSensor));
 =======
@@ -80,6 +81,7 @@ void loop() {
         Serial.println("[10] Pivot and turn test");
 >>>>>>> a596a7d46621f6d687f91bde26367b2dc8a49cdf
         delay(3000);
+        spinBoi();
       }
       motor(0, 0);
       break;
@@ -135,10 +137,68 @@ void loop() {
 }
 
 void straightSpeedTest() {
-  digitalWrite(dirL, HIGH);
-  digitalWrite(dirR, LOW);
-  analogWrite(pwmR, 255);
-  analogWrite(pwmL, 240);
+  
+for (int i=0; i<100; i++){
+  motor(i,i);
+  delay(3);
+}
+delay(9400);
+for (int j=100; j>0; j--){
+  motor(j,j);
+  delay(3);
+}
+delay(1000);//Done, wait 1 sec
+for (int i=0; i<200; i++){
+  motor(i,i);
+  delay(3);
+}
+delay(2000);
+for (int j=200; j>0; j--){
+  motor(j,j);
+  delay(3);
+}
+
+delay(1000); // Wait
+//// Go Backwards
+for (int i=0; i<100; i++){
+  motor(-i,-i);
+  delay(3);
+}
+delay(9400);
+for (int j=100; j>0; j--){
+  motor(-j,-j);
+  delay(3);
+}
+delay(1000); // Wait, 1 sec
+for (int i=0; i<200; i++){
+  motor(-i,-i);
+  delay(3);
+}
+delay(2000);
+for (int j=200; j>0; j--){
+  motor(-j,-j);
+  delay(3);
+}
+}
+
+void spinBoi() {
+  digitalWrite(dirL, LOW); //Left motor forward
+  digitalWrite(dirR, LOW); //Right motor reverse
+  Serial.println("LM = Forward, RM = Reverse\n");
+ 
+  analogWrite(pwmR, 0);
+  analogWrite(pwmL, 0);
+  Serial.println("Waiting 1 second\n");
+  delay(1000);
+  
+  analogWrite(pwmR, 100);
+  analogWrite(pwmL, 100);
+  delay(3405);
+  
+  Serial.println("<TEST OVER>");
+  analogWrite(pwmR, 0);
+  analogWrite(pwmL, 0);
+  Serial.end();
 }
 
 void motor(int left, int right) { // converts signals in range(-255, 255) to motor pon signals 
