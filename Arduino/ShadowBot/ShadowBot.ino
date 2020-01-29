@@ -10,7 +10,8 @@ const int led = 12;
 const int leftSensor = A0;
 const int rightSensor = A1;
 
-void motor(int left, int right); // converts signals in range(-255, 255) to motor pon signals 
+void motor(int left, int right); // converts signals in range(-255, 255) to motor pon signals
+void straightSpeedTest();
 
 void setup() {
   // setup pins
@@ -35,13 +36,9 @@ void loop() {
     case 0: // 00 Sit, wait and blink, repeat.
       if (lastMode != 0) { // mode change, print
         lastMode = 0;
-<<<<<<< HEAD
-        Serial.println("off");
         motor(0, 0);
-=======
         Serial.println("[00] blink and wait");
         delay(3000);
->>>>>>> a596a7d46621f6d687f91bde26367b2dc8a49cdf
       }
       static bool toggle;
       if (toggle) {
@@ -56,30 +53,18 @@ void loop() {
     case 1: // 01 Straight and speed test.
       if (lastMode != 1) { // mode change, print
         lastMode = 1;
-<<<<<<< HEAD
-        Serial.println("Straight and speed");
+        Serial.println("[01] Straight and speed");
         motor(0, 0);
         delay(3000);
         straightSpeedTest();
       }
-      Serial.println(analogRead(rightSensor));
-=======
-        Serial.println("[01] Straight and speed");
-        delay(3000);
-      }
-      straightSpeedTest();
->>>>>>> a596a7d46621f6d687f91bde26367b2dc8a49cdf
       motor(0, 0);
       break;
     case 2: // 10 Pivot and turn test
       if (lastMode != 2) { // mode change, print
         lastMode = 2;
-<<<<<<< HEAD
-        Serial.println("Pivot and turn test");
         motor(0, 0);
-=======
         Serial.println("[10] Pivot and turn test");
->>>>>>> a596a7d46621f6d687f91bde26367b2dc8a49cdf
         delay(3000);
         spinBoi();
       }
@@ -89,16 +74,12 @@ void loop() {
       static bool goLeft = true;
       if (lastMode != 3) { // 11 Follow the wall test
         lastMode = 3;
-<<<<<<< HEAD
-        Serial.println("Follow the wall test");
         motor(0, 0);
-=======
         Serial.println("[11] Follow the wall test");
->>>>>>> a596a7d46621f6d687f91bde26367b2dc8a49cdf
         delay(3000);
-        //while (analogRead(rightSensor) < 350 || analogRead(rightSensor) < 350) { // go forward untill see wall
-        //  motor(255, 255);
-        //}
+        while (analogRead(rightSensor) < 350 || analogRead(rightSensor) < 350) { // go forward untill see wall
+          motor(100, 100);
+        }
       }
       // follow wall
       if (goLeft) { // going left check right side
@@ -137,48 +118,47 @@ void loop() {
 }
 
 void straightSpeedTest() {
-  
-for (int i=0; i<100; i++){
-  motor(i,i);
-  delay(3);
-}
-delay(9400);
-for (int j=100; j>0; j--){
-  motor(j,j);
-  delay(3);
-}
-delay(1000);//Done, wait 1 sec
-for (int i=0; i<200; i++){
-  motor(i,i);
-  delay(3);
-}
-delay(2000);
-for (int j=200; j>0; j--){
-  motor(j,j);
-  delay(3);
-}
+  for (int i=0; i<100; i++){
+    motor(i,i);
+    delay(3);
+  }
+  delay(9400);
+  for (int j=100; j>0; j--){
+    motor(j,j);
+    delay(3);
+  }
+  delay(1000);//Done, wait 1 sec
+  for (int i=0; i<200; i++){
+    motor(i,i);
+    delay(3);
+  }
+  delay(2000);
+  for (int j=200; j>0; j--){
+    motor(j,j);
+    delay(3);
+  }
 
-delay(1000); // Wait
-//// Go Backwards
-for (int i=0; i<100; i++){
-  motor(-i,-i);
-  delay(3);
-}
-delay(9400);
-for (int j=100; j>0; j--){
-  motor(-j,-j);
-  delay(3);
-}
-delay(1000); // Wait, 1 sec
-for (int i=0; i<200; i++){
-  motor(-i,-i);
-  delay(3);
-}
-delay(2000);
-for (int j=200; j>0; j--){
-  motor(-j,-j);
-  delay(3);
-}
+  delay(1000); // Wait
+  //// Go Backwards
+  for (int i=0; i<100; i++){
+    motor(-i,-i);
+    delay(3);
+  }
+  delay(9400);
+  for (int j=100; j>0; j--){
+    motor(-j,-j);
+    delay(3);
+  }
+  delay(1000); // Wait, 1 sec
+  for (int i=0; i<200; i++){
+    motor(-i,-i);
+    delay(3);
+  }
+  delay(2000);
+  for (int j=200; j>0; j--){
+    motor(-j,-j);
+    delay(3);
+  }
 }
 
 void spinBoi() {
@@ -204,23 +184,17 @@ void spinBoi() {
 void motor(int left, int right) { // converts signals in range(-255, 255) to motor pon signals 
   if (left < 0) {
     digitalWrite(dirL, HIGH);
-    analogWrite(pwmL, abs(left));
+    analogWrite(pwmL, abs(left * 0.97));
   } else {
     digitalWrite(dirL, LOW);
-    analogWrite(pwmL, abs(left));
+    analogWrite(pwmL, abs(left * 0.97));
   }
   
   if (right < 0) {
     digitalWrite(dirR, LOW);
     analogWrite(pwmR, abs(right));
-<<<<<<< HEAD
   } else {
     digitalWrite(dirR, HIGH);
-=======
-  } 
-  else {
-    digitalWrite(dirR, LOW);
->>>>>>> a596a7d46621f6d687f91bde26367b2dc8a49cdf
     analogWrite(pwmR, abs(right));
   }
 }
