@@ -1,3 +1,8 @@
+#include <Wire.h>
+#include <SparkFunLSM9DS1.h>
+
+#define DECLINATION -9.16 // Declination (degrees) in Durango, CO.
+
 const int switch0 = 10; // pin connected to switch 0
 const int switch1 = 9; // pin connected to switch 1
 
@@ -12,6 +17,37 @@ const int rightSensor = A1;
 
 void motor(int left, int right); // converts signals in range(-255, 255) to motor pon signals
 void straightSpeedTest();
+void read9DoF();
+
+//  My global variable for accelerometer values (use the Sparkfun calibration)
+float Ax,Ay,Az;
+
+//  These are my global variables for the raw magnetometer values
+//  (I changed them from the basic example to match a calibration routine I had)
+int compass_x, compass_y, compass_z;
+
+// These are the normalized unit vectors to use for the direction of the field
+float compass_x_cos, compass_y_cos, compass_z_cos, compass_mag;
+
+LSM9DS1 imu;
+
+/*
+min_x: -1596         max_x: 7755
+min_y: -5407         max_y: 3279
+min_z: -4697         max_z: 3215
+  
+average_x: 3079.00   magnitude_x: 4675.00   x_cosine: 0.00
+average_y: -1064.00   magnitude_y: 4343.00   y_cosine: 0.43
+average_z: -741.00   magnitude_z: 3956.00   z_cosine: -0.93
+*/
+
+// CALABRATION
+float compass_x_ave = 3079.00;
+float compass_y_ave = -1064.00;
+float compass_z_ave = -741.00;
+float compass_x_mag = 4675.00;
+float compass_y_mag = 4343.00;
+float compass_z_mag = 3956.00;
 
 void setup() {
   // setup pins
@@ -27,6 +63,17 @@ void setup() {
   
   Serial.begin(9600); // open serial port
   while(!Serial) {} // wait till serial port has connected
+
+  if (imu.begin() == false) // with no arguments, this uses default addresses (AG:0x6B, M:0x1E) and i2c port (Wire).
+  {
+    Serial.println("Failed to communicate with LSM9DS1.");
+    Serial.println("Double-check wiring.");
+    Serial.println("Default settings in this sketch will " \
+                   "work for an out of the box LSM9DS1 " \
+                   "Breakout, but may need to be modified " \
+                   "if the board jumpers are.");
+    while (1);
+  }
 }
 
 void loop() {
@@ -52,13 +99,59 @@ void loop() {
     case 1: // 01 Straight and speed test.
       if (lastMode != 1) { // mode change, print
         lastMode = 1;
-        Serial.println("[01] Straight and speed");
+        Serial.println("[01] Go West");
         motor(0, 0);
         delay(3000);
-        straightSpeedTest();
       }
-      motor(0, 0);
+      read9DoF();
+      getCompass();
+      float heading;
+      if (compass_y_cos == 0)
+        heading = (compass_x_cos < 0) ? PI : 0;
+      else
+        heading = -atan2(compass_y_cos, compass_x_cos);
+      heading -= DECLINATION * PI / 180;
+
+      float dir = -PI/2;
+      float error = heading - dir;
+      if (error > PI) {
+        error -= 2 * PI;
+      }
+      if (error < -PI) {
+        error += 2 * PI;
+      }
+      Serial.print(heading);
+      Serial.print(" ");
+      Serial.println(error);
+      motor(min(155, max(0, 255 - error * 50)), min(155, max(0, 255 + error * 50)));
       break;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
     case 2: // 10 Pivot and turn test
       if (lastMode != 2) { // mode change, print
         lastMode = 2;
@@ -67,7 +160,6 @@ void loop() {
         delay(3000);
         spinBoi();
       }
-      motor(0, 0);
       break;
     case 3: // 11 Follow the wall test
       static bool goLeft = true;
@@ -250,4 +342,84 @@ void motor(int left, int right) { // converts signals in range(-255, 255) to mot
     digitalWrite(dirR, HIGH);
     analogWrite(pwmR, abs(right));
   }
+}
+
+void read9DoF()
+{
+  // Update the sensor values whenever new data is available
+  if ( imu.gyroAvailable() )
+  {
+    // To read from the gyroscope,  first call the
+    // readGyro() function. When it exits, it'll update the
+    // gx, gy, and gz variables with the most current data.
+    imu.readGyro();
+  }
+  if ( imu.accelAvailable() )
+  {
+    // To read from the accelerometer, first call the
+    // readAccel() function. When it exits, it'll update the
+    // ax, ay, and az variables with the most current data.
+    imu.readAccel();
+    Ax = imu.calcAccel(imu.ax);
+    Ay = imu.calcAccel(imu.ay);
+//    Az = imu.calcAccel(imu.az);
+//  Here is my change to try to get a right handed system. !!!
+    Az = -imu.calcAccel(imu.az);
+  }
+  if ( imu.magAvailable() )
+  {
+    // To read from the magnetometer, first call the
+    // readMag() function. When it exits, it'll update the
+    // mx, my, and mz variables with the most current data.
+    imu.readMag();
+    compass_x = imu.mx;
+    compass_y = imu.my;
+    compass_z = imu.mz;
+  }
+}
+
+void getCompass()
+{
+  if ( imu.magAvailable() )
+  {
+    
+// To read from the magnetometer, first call the
+// readMag() function. When it exits, it'll update the
+// mx, my, and mz variables with the most current data.
+//
+    imu.readMag();
+    compass_x = imu.mx;
+    compass_y = imu.my;
+    compass_z = imu.mz;
+
+//  Here is where the magnetic field gets converted to a unit vector
+//  Note the various signs that force +X = forward, +Y = right, +Z = down
+//  The orientation of your LSM9DS1 might make things different
+//
+//  But USE A RIGHT HANDED COORDINATE SYSTEM !!!!!
+//
+//  The global variables that end in _mag and _ave are from the calibration
+//
+    compass_x_cos = -(compass_x - compass_x_ave) / compass_x_mag;
+    compass_y_cos = (compass_y - compass_y_ave) / compass_y_mag;
+    compass_z_cos = -(compass_z - compass_z_ave) / compass_z_mag;
+    compass_mag = sqrt(compass_x_cos*compass_x_cos+compass_y_cos*compass_y_cos+compass_z_cos*compass_z_cos);
+    
+    //Serial.print("***   Compass cosines before narmalizing: x = ");
+    //Serial.print(compass_x_cos);
+    //Serial.print(", y = ");
+    //Serial.print(compass_y_cos);
+    //Serial.print(", z = ");
+    //Serial.print(compass_z_cos);
+    //Serial.print(", Mag = ");
+    //Serial.println(compass_mag);
+
+//  Normalize it !!!  (Make a vector of length 1 pointing along Earth's field)
+    compass_x_cos = compass_x_cos / compass_mag;
+    compass_y_cos = compass_y_cos / compass_mag;
+    compass_z_cos = compass_z_cos / compass_mag;
+    compass_mag = sqrt(compass_x_cos*compass_x_cos+compass_y_cos*compass_y_cos+compass_z_cos*compass_z_cos);
+    
+  }
+  
 }
