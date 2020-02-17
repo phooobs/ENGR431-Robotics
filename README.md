@@ -3,7 +3,7 @@
 ### Members
 James Ferguson
 
-Tyrone Bracker-Yazzie
+Tyrone Bracker-Yazzie -- tabrackeryazzie@fortlewis.edu -- 970-912-3122
 
 Alesia Sulivan
 
