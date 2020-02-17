@@ -33,12 +33,12 @@ LSM9DS1 imu;
 
 
 // CALABRATION
-float compass_x_ave = 2525.00;
-float compass_y_ave = -1230.00;
-float compass_z_ave = -62.00;
-float compass_x_mag = 2992.00;
-float compass_y_mag = 3031.00;
-float compass_z_mag = 3436.00;
+float compass_x_ave = 2713.00;
+float compass_y_ave = -1538.00;
+float compass_z_ave = -1212.00;
+float compass_x_mag = 2652.00;
+float compass_y_mag = 2829.00;
+float compass_z_mag = 1518.00;
 
 void setup() {
   // setup pins
