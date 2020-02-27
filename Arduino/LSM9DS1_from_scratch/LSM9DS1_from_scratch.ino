@@ -15,9 +15,20 @@ void loop() {
   float magneticFieldX, magneticFieldY, magneticFieldZ;
   IMU.readMagneticField(magneticFieldX, magneticFieldY, magneticFieldZ);
 
-  float roll = atan2(accelerationX, -accelerationZ) * 180 / 3.14159 + 180; // correct
-  float pitch = atan2(accelerationY, -accelerationZ) * 180 / 3.14159 + 180; // correct
-  float headding = atan2(-magneticFieldX, -magneticFieldY) * 180 / 3.14159; // incorrect
+  // centers generated from GyroFindCenters.py and GyroData.txt
+  const float magneticFieldCenterX = 17.61;
+  const float magneticFieldCenterY = -19.495;
+  const float magneticFieldCenterZ = -7.47;
+
+  // center data
+  magneticFieldX += magneticFieldCenterX;
+  magneticFieldX += magneticFieldCenterY;
+  magneticFieldX += magneticFieldCenterZ;
+
+  // calculate roll pitch and headding
+  float roll = atan2(accelerationX, -accelerationZ) * 180 / 3.14159 + 180;
+  float pitch = atan2(accelerationY, -accelerationZ) * 180 / 3.14159 + 180;
+  float headding = atan2(-magneticFieldX, -magneticFieldY) * -360 / 3.14159;
 
   // set angle range to -180 to 180
   while (roll > 180) {
@@ -40,10 +51,10 @@ void loop() {
   }
 
   // output
-  Serial.print(magneticFieldX);
+  Serial.print(roll);
   Serial.print(" ");
-  Serial.print(magneticFieldY);
+  Serial.print(pitch);
   Serial.print(" ");
-  Serial.print(magneticFieldZ);
+  Serial.print(headding);
   Serial.println();
 }
