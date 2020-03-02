@@ -28,20 +28,29 @@ void loop() {
 
   // center data
   magneticFieldX += magneticFieldCenterX;
-  magneticFieldX += magneticFieldCenterY;
-  magneticFieldX += magneticFieldCenterZ;
+  magneticFieldY += magneticFieldCenterY;
+  magneticFieldZ += magneticFieldCenterZ;
 
   // calculate roll pitch and headding
   float roll = atan2(accelerationX, -accelerationZ) * 180 / PI + 180;
   float pitch = atan2(accelerationY, -accelerationZ) * 180 / PI + 180;
 
-  // project and  move magneticField onto level plane defined by acceleromiter
-  float magneticFieldDistance = accelerationX * magneticFieldX + accelerationY * magneticFieldY + accelerationZ * magneticFieldZ;
-  magneticFieldX -= magneticFieldDistance * accelerationX;
-  magneticFieldY -= magneticFieldDistance * accelerationY;
-  magneticFieldZ -= magneticFieldDistance * accelerationZ;
-  
-  float headding = atan2(-magneticFieldX, -magneticFieldY) * -360 / PI;
+  /*
+  rx*ry =
+  [         cos(r),      0,         sin(r)]
+  [  sin(p)*sin(r), cos(p), -cos(r)*sin(p)]
+  [ -cos(p)*sin(r), sin(p),  cos(p)*cos(r)]
+ 
+  ry*rx =
+  [  cos(r), sin(p)*sin(r), cos(p)*sin(r)]
+  [       0,        cos(p),       -sin(p)]
+  [ -sin(r), cos(r)*sin(p), cos(p)*cos(r)]
+  */
+  // rotate
+  magneticFieldXRotated = cos(roll) * magneticFieldX + sin(pitch)*sin(roll) * magneticFieldY + cos(pitch)*sin(roll) * magneticFieldZ;
+  magneticFieldYRotated = cos(pitch) * magneticFieldY + -sin(pitch) * magneticFieldZ;
+  magneticFieldZRotated = -sin(roll) * magneticFieldX + cos(roll)*sin(pitch) * magneticFieldY + cos(pitch)*cos(roll) * magneticFieldZ;
+  float headding = atan2(-magneticFieldXRotated, -magneticFieldYRotated) * -360 / PI;
 
   // set angle range to -180 to 180
   while (roll > 180) {
