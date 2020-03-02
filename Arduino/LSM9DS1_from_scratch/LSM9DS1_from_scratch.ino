@@ -15,6 +15,12 @@ void loop() {
   float magneticFieldX, magneticFieldY, magneticFieldZ;
   IMU.readMagneticField(magneticFieldX, magneticFieldY, magneticFieldZ);
 
+  // normalize acceleration
+  float accelerationLength = sqrt(pow(accelerationX, 2) + pow(accelerationY, 2) + pow(accelerationZ, 2));
+  accelerationX /= accelerationLength;
+  accelerationY /= accelerationLength;
+  accelerationZ /= accelerationLength;
+
   // centers generated from GyroFindCenters.py and GyroData.txt
   const float magneticFieldCenterX = 17.61;
   const float magneticFieldCenterY = -19.495;
@@ -26,9 +32,16 @@ void loop() {
   magneticFieldX += magneticFieldCenterZ;
 
   // calculate roll pitch and headding
-  float roll = atan2(accelerationX, -accelerationZ) * 180 / 3.14159 + 180;
-  float pitch = atan2(accelerationY, -accelerationZ) * 180 / 3.14159 + 180;
-  float headding = atan2(-magneticFieldX, -magneticFieldY) * -360 / 3.14159;
+  float roll = atan2(accelerationX, -accelerationZ) * 180 / PI + 180;
+  float pitch = atan2(accelerationY, -accelerationZ) * 180 / PI + 180;
+
+  // project and  move magneticField onto level plane defined by acceleromiter
+  float magneticFieldDistance = accelerationX * magneticFieldX + accelerationY * magneticFieldY + accelerationZ * magneticFieldZ;
+  magneticFieldX -= magneticFieldDistance * accelerationX;
+  magneticFieldY -= magneticFieldDistance * accelerationY;
+  magneticFieldZ -= magneticFieldDistance * accelerationZ;
+  
+  float headding = atan2(-magneticFieldX, -magneticFieldY) * -360 / PI;
 
   // set angle range to -180 to 180
   while (roll > 180) {
