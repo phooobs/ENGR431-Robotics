@@ -26,8 +26,9 @@ class Leg {
       float hipOffsetX = hipLength_ * cos(*hipYawl - hipRootAngle_);
       float hipOffsetY = hipLength_ * sin(*hipYawl - hipRootAngle_);
       float distanceToPoint = sqrt(pow(x - hipRootX_ + hipOffsetX, 2) + pow(y - hipRootY_ + hipOffsetY, 2) + pow(z - hipRootZ_, 2));
+      *hipYawl += PI / 2;
       *kneePitch = acos((pow(thighLength_, 2) + pow(shinLength_, 2) - pow(distanceToPoint, 2)) / (2 * thighLength_ * shinLength_));
-      *hipPitch = atan2(z - hipRootZ_, sqrt(pow(x - hipRootX_ - hipOffsetX, 2) + pow(y - hipRootY_ - hipOffsetY, 2))) + acos((pow(thighLength_, 2) - pow(shinLength_, 2) + pow(distanceToPoint, 2)) / (2 * thighLength_ * distanceToPoint));
+      *hipPitch = -(atan2(z - hipRootZ_, sqrt(pow(x - hipRootX_ - hipOffsetX, 2) + pow(y - hipRootY_ - hipOffsetY, 2))) - acos((pow(thighLength_, 2) - pow(shinLength_, 2) + pow(distanceToPoint, 2)) / (2 * thighLength_ * distanceToPoint)) + PI / 2);
     }
     
   private:
@@ -51,10 +52,12 @@ int convertAngle(int angle) {
 }
 
 void angleTest() {
+  Serial.println("0");
   maestro.setTarget(2, convertAngle(0));
   maestro.setTarget(1, convertAngle(0));
   delay(2000);
 
+  Serial.println("180");
   maestro.setTarget(2, convertAngle(180));
   maestro.setTarget(1, convertAngle(180));
   delay(2000);
@@ -75,20 +78,23 @@ void setup()
 
 
 void loop() {
-  Legline();
+  angleTest();
+  //Legline();
 }
 
 Leg testLeg(0, 0, 50, 0, 27, 83, 140);
 void Legline () {
   static int yPos;
-  yPos = (yPos + 1) % 70;
+  yPos = yPos % 70 + 1;
   float angle0, angle1, angle2;
   testLeg.pose(yPos, 0, 0, &angle0, &angle1, &angle2);
 
   angle0 *= 180 / 3.14;
   angle1 *= 180 / 3.14;
   angle2 *= 180 / 3.14;
-  
+
+  //uint16_t errorCode = maestro.getErrors();
+  Serial.print(" ");
   Serial.print(yPos);
   Serial.print(" ");
   Serial.print(angle0);
