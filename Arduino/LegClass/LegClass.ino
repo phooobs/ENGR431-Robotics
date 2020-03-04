@@ -22,13 +22,19 @@ class Leg {
     }
     
     void pose(float x, float y, float z, float* hipYawl, float* hipPitch, float* kneePitch){
-      *hipYawl = atan2(y - hipRootY_, x - hipRootX_) + hipRootAngle_;
-      float hipOffsetX = hipLength_ * cos(*hipYawl - hipRootAngle_);
-      float hipOffsetY = hipLength_ * sin(*hipYawl - hipRootAngle_);
-      float distanceToPoint = sqrt(pow(x - hipRootX_ + hipOffsetX, 2) + pow(y - hipRootY_ + hipOffsetY, 2) + pow(z - hipRootZ_, 2));
+      *hipYawl = atan2(y - hipRootY_, x - hipRootX_) + hipRootAngle_ - PI / 2;
+      float hipOffsetX = hipLength_ * cos(*hipYawl - hipRootAngle_ + PI / 2);
+      float hipOffsetY = hipLength_ * sin(*hipYawl - hipRootAngle_ + PI / 2);
+      float distanceToPoint = sqrt(pow(x - hipRootX_ - hipOffsetX, 2) + pow(y - hipRootY_ - hipOffsetY, 2) + pow(z - hipRootZ_, 2));
+      Serial.print(hipOffsetX);
+      Serial.print(" ");
+      Serial.print(hipOffsetY);
+      Serial.print(" ");
+      Serial.print(distanceToPoint);
+      Serial.print(" ");
       *hipYawl += PI / 2;
       *kneePitch = acos((pow(thighLength_, 2) + pow(shinLength_, 2) - pow(distanceToPoint, 2)) / (2 * thighLength_ * shinLength_));
-      *hipPitch = -(atan2(z - hipRootZ_, sqrt(pow(x - hipRootX_ - hipOffsetX, 2) + pow(y - hipRootY_ - hipOffsetY, 2))) - acos((pow(thighLength_, 2) - pow(shinLength_, 2) + pow(distanceToPoint, 2)) / (2 * thighLength_ * distanceToPoint)) + PI / 2);
+      *hipPitch = PI - ((PI - atan2(z - hipRootZ_, sqrt(pow(x - hipRootX_ - hipOffsetX, 2) + pow(y - hipRootY_ - hipOffsetY, 2)))) + acos((pow(thighLength_, 2) + pow(distanceToPoint, 2) - pow(shinLength_, 2)) / (2 * thighLength_ * distanceToPoint)) - 3 * PI / 2) - PI / 2;
     }
     
   private:
@@ -78,25 +84,22 @@ void setup()
 
 
 void loop() {
-  angleTest();
-  //Legline();
+  //angleTest();
+  Legline();
 }
 
-Leg testLeg(0, 0, 50, 0, 27, 83, 140);
+Leg testLeg(0, 0, 0, 0, 27, 83, 140);
 void Legline () {
-  static int yPos;
-  yPos = yPos % 70 + 1;
+  static int pos;
+  pos = pos % 100 + 1;
   float angle0, angle1, angle2;
-  testLeg.pose(yPos, 0, 0, &angle0, &angle1, &angle2);
+  testLeg.pose(0, 0, -pos - 100, &angle0, &angle1, &angle2);
 
   angle0 *= 180 / 3.14;
   angle1 *= 180 / 3.14;
   angle2 *= 180 / 3.14;
 
-  //uint16_t errorCode = maestro.getErrors();
-  Serial.print(" ");
-  Serial.print(yPos);
-  Serial.print(" ");
+
   Serial.print(angle0);
   Serial.print(" ");
   Serial.print(angle1);
@@ -106,5 +109,5 @@ void Legline () {
   maestro.setTarget(0, convertAngle(angle0));
   maestro.setTarget(1, convertAngle(angle1));
   maestro.setTarget(2, convertAngle(angle2));
-  delay(100);
+  delay(10);
 }
