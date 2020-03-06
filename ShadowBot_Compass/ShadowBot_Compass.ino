@@ -32,12 +32,12 @@ float compass_x_cos, compass_y_cos, compass_z_cos, compass_mag;
 LSM9DS1 imu;
 
 // CALABRATION
-float compass_x_ave = 2713.00;
-float compass_y_ave = -1538.00;
-float compass_z_ave = -1212.00;
-float compass_x_mag = 2652.00;
-float compass_y_mag = 2829.00;
-float compass_z_mag = 1518.00;
+float compass_x_ave = 1795.00;
+float compass_y_ave = -1307.00;
+float compass_z_ave = -524.00;
+float compass_x_mag = 2762.00;
+float compass_y_mag = 2766.00;
+float compass_z_mag = 2575.00;
 float pitch, roll, heading;
 
 void setup() {
@@ -91,14 +91,14 @@ void loop() {
       Serial.println("Pitch || Roll || Heading");
       delay(100);
     }
-    
-    getOneHeading();
+    //getOneHeading();
     getOneTRHeading();
+    /*
     Serial.print(pitch);
     Serial.print(" || ");
     Serial.print(roll);
     Serial.print(" || ");
-    Serial.println(heading);
+    Serial.println(heading); */
     delay(500);
   }
   else if (digitalRead(switch0) == 0 && digitalRead(switch1) == 1) { // West
@@ -250,22 +250,13 @@ void getOneTRHeading() {
 
   read9DoF();      // for Acceleration
   getCompass();    // for magnetometer (normalization added)
-
-  // Definitions!!!
-  // The "formula" assumes z down is positive, but the accelerometer says the "acceleration
-  // is "up", as if you were on an elevator.  So changing keeping Ax, Ay, Az as defined
-  // previously means I need to swap them for these pitch and roll calculations.
-
-  //  pitch = asin(-Ax);   // this would be straight from formula, but acceleration = up.
+  
   pitch = asin(Ax);
-  //  roll = asin(Ay/cos(pitch));   // ditto on which way is up.
+  
   roll = -asin(Ay / cos(pitch));
-  //  rolldeg = 180*roll/PI;       // for printing
-
-  //  These are the compensations to get "effective" x and y components
+  
   magXcomp = compass_x_cos * cos(pitch) + compass_z_cos * sin(pitch);
   magYcomp = compass_x_cos * sin(roll) * sin(pitch) + compass_y_cos * cos(roll) - compass_z_cos * sin(roll) * cos(pitch);
-  //  heading = 180*atan2(magYcomp,magXcomp)/PI;
 
   if (compass_y_cos == 0)
     heading = (compass_x_cos < 0) ? PI : 0;
@@ -274,9 +265,6 @@ void getOneTRHeading() {
 
   heading -= DECLINATION * PI / 180;
 
-  //  The challenge beacon transmits 0-180 which you need to
-  //  multiply by 2 to get 0-360 (instead of -180 - 180)
-  //
   if (heading > 2 * PI) heading -= (2 * PI);
   else if (heading < 0) heading += (2 * PI);
 
