@@ -41,7 +41,6 @@ float compass_z_mag = 1518.00;
 float pitch, roll, heading;
 
 void setup() {
-  // setup pins
   pinMode(dirL, OUTPUT);
   pinMode(dirR, OUTPUT);
   pinMode(pwmL, OUTPUT);
@@ -52,7 +51,7 @@ void setup() {
   pinMode(rightSensor, INPUT);
   pinMode(led, OUTPUT);
 
-  Serial.begin(9600); // open serial port
+  Serial.begin(9600);
   while (!Serial) {} // wait till serial port has connected
 
   if (imu.begin() == false) // with no arguments, this uses default addresses (AG:0x6B, M:0x1E) and i2c port (Wire).
@@ -82,12 +81,25 @@ void loop() {
     if (lastMode != 2) {
       lastMode = 2;
       motor(0, 0);
-      Serial.println("[10] Read Pitch/Yaw/Roll\n");
-      delay(3000);
+      Serial.println("[10] Read Pitch/Roll/Heading\n");
+      delay(500);
+      Serial.println("Current Values:");
+      Serial.println("X: Avg:: " + String(compass_x_ave) + " || Mag:: " + String(compass_x_mag));
+      Serial.println("Y: Avg:: " + String(compass_y_ave) + " || Mag:: " + String(compass_y_mag));
+      Serial.println("Z: Avg:: " + String(compass_z_ave) + " || Mag:: " + String(compass_z_mag) + "\n");
+      delay(2500);
+      Serial.println("Pitch || Roll || Heading");
+      delay(100);
     }
+    
     getOneHeading();
     getOneTRHeading();
-    
+    Serial.print(pitch);
+    Serial.print(" || ");
+    Serial.print(roll);
+    Serial.print(" || ");
+    Serial.println(heading);
+    delay(500);
   }
   else if (digitalRead(switch0) == 0 && digitalRead(switch1) == 1) { // West
     if (lastMode != 1) { // mode change, print
@@ -193,44 +205,20 @@ void read9DoF() {
 void getCompass() {
   if ( imu.magAvailable() )
   {
-
-    // To read from the magnetometer, first call the
-    // readMag() function. When it exits, it'll update the
-    // mx, my, and mz variables with the most current data.
-    //
     imu.readMag();
     compass_x = imu.mx;
     compass_y = imu.my;
     compass_z = imu.mz;
-
-    //  Here is where the magnetic field gets converted to a unit vector
-    //  Note the various signs that force +X = forward, +Y = right, +Z = down
-    //  The orientation of your LSM9DS1 might make things different
-    //
-    //  But USE A RIGHT HANDED COORDINATE SYSTEM !!!!!
-    //
-    //  The global variables that end in _mag and _ave are from the calibration
-    //
+    
     compass_x_cos = -(compass_x - compass_x_ave) / compass_x_mag;
     compass_y_cos = (compass_y - compass_y_ave) / compass_y_mag;
     compass_z_cos = -(compass_z - compass_z_ave) / compass_z_mag;
     compass_mag = sqrt(compass_x_cos * compass_x_cos + compass_y_cos * compass_y_cos + compass_z_cos * compass_z_cos);
 
-    //Serial.print("***   Compass cosines before narmalizing: x = ");
-    //Serial.print(compass_x_cos);
-    //Serial.print(", y = ");
-    //Serial.print(compass_y_cos);
-    //Serial.print(", z = ");
-    //Serial.print(compass_z_cos);
-    //Serial.print(", Mag = ");
-    //Serial.println(compass_mag);
-
-    //  Normalize it !!!  (Make a vector of length 1 pointing along Earth's field)
     compass_x_cos = compass_x_cos / compass_mag;
     compass_y_cos = compass_y_cos / compass_mag;
     compass_z_cos = compass_z_cos / compass_mag;
     compass_mag = sqrt(compass_x_cos * compass_x_cos + compass_y_cos * compass_y_cos + compass_z_cos * compass_z_cos);
-
   }
 }
 
@@ -247,16 +235,9 @@ void getOneHeading() {
 
   heading -= DECLINATION * PI / 180;
 
-  //  if (heading > PI) heading -= (2 * PI);
-  //  else if (heading < -PI) heading += (2 * PI);
-  //
-  //  The challenge beacon transmits 0-180 which you need to
-  //  multiply by 2 to get 0-360 (instead of -180 - 180)
-  //
   if (heading > 2 * PI) heading -= (2 * PI);
   else if (heading < 0) heading += (2 * PI);
 
-  // Convert from radians to degrees:
   heading *= 180.0 / PI;
 
 }
