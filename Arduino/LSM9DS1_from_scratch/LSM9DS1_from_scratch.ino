@@ -47,9 +47,9 @@ void loop() {
   [ -sin(r), cos(r)*sin(p), cos(p)*cos(r)]
   */
   // rotate
-  float magneticFieldXRotated = cos(roll * PI / 180) * magneticFieldX + sin(pitch * PI / 180)*sin(roll * PI / 180) * magneticFieldY + cos(pitch * PI / 180)*sin(roll * PI / 180) * magneticFieldZ;
-  float magneticFieldYRotated = cos(pitch * PI / 180) * magneticFieldY + -sin(pitch * PI / 180) * magneticFieldZ;
-  float magneticFieldZRotated = -sin(roll * PI / 180) * magneticFieldX + cos(roll * PI / 180)*sin(pitch * PI / 180) * magneticFieldY + cos(pitch * PI / 180)*cos(roll * PI / 180) * magneticFieldZ;
+  float magneticFieldXRotated = cos(-roll * PI / 180) * magneticFieldX + sin(-pitch * PI / 180)*sin(-roll * PI / 180) * magneticFieldY + cos(-pitch * PI / 180)*sin(-roll * PI / 180) * magneticFieldZ;
+  float magneticFieldYRotated = cos(-pitch * PI / 180) * magneticFieldY + -sin(-pitch * PI / 180) * magneticFieldZ;
+  float magneticFieldZRotated = -sin(-roll * PI / 180) * magneticFieldX + cos(-roll * PI / 180)*sin(-pitch * PI / 180) * magneticFieldY + cos(-pitch * PI / 180)*cos(-roll * PI / 180) * magneticFieldZ;
   float headding = atan2(-magneticFieldXRotated, -magneticFieldYRotated) * -360 / PI;
 
   // set angle range to -180 to 180
