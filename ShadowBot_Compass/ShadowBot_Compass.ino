@@ -41,7 +41,6 @@ float compass_z_mag = 1518.00;
 float pitch, roll, heading;
 
 void setup() {
-  // setup pins
   pinMode(dirL, OUTPUT);
   pinMode(dirR, OUTPUT);
   pinMode(pwmL, OUTPUT);
@@ -52,7 +51,7 @@ void setup() {
   pinMode(rightSensor, INPUT);
   pinMode(led, OUTPUT);
 
-  Serial.begin(9600); // open serial port
+  Serial.begin(9600);
   while (!Serial) {} // wait till serial port has connected
 
   if (imu.begin() == false) // with no arguments, this uses default addresses (AG:0x6B, M:0x1E) and i2c port (Wire).
@@ -65,97 +64,91 @@ void setup() {
                    "if the board jumpers are.");
     while (1);
   }
-  //Serial.println("S1  S2\n");
 }
 
 void loop() {
   static int lastMode = -1; // keep track of what mode we are on so when there is a change it can be detected, -1 means no last mode
-  //Serial.println(String(digitalRead(switch0)) + "    " + String(digitalRead(switch1)));
-  switch (2 * digitalRead(switch1) + digitalRead(switch0)) { // get input from switches and convert to mode number
-    case 0: // 00 Sit, wait and blink, repeat.
-      if (lastMode != 0) { // mode change, print
-        lastMode = 0;
-        motor(0, 0);
-        Serial.println("[00] blink and wait");
-        delay(3000);
-      }
-      static bool toggle;
-      if (toggle) {
-        toggle = false;
-      } else {
-        toggle = true;
-      }
-      digitalWrite(led, toggle);
+
+  if (digitalRead(switch0) == 0 && digitalRead(switch1) == 0) { // Sit
+    if (lastMode != 0) {
+      lastMode = 0;
       motor(0, 0);
+      Serial.println("[00] Standing By...\n");
+      delay(3000);
+    }
+  }
+  else if (digitalRead(switch0) == 1 && digitalRead(switch1) == 0) { // PRY 
+    if (lastMode != 2) {
+      lastMode = 2;
+      motor(0, 0);
+      Serial.println("[10] Read Pitch/Roll/Heading\n");
       delay(500);
-      break;
-
-    case 1: // 01 Straight and speed test.
-      if (lastMode != 1) { // mode change, print
-        lastMode = 1;
-        Serial.println("[01] Go West");
-        motor(0, 0);
-        delay(3000);
-      }
-      read9DoF();
-      getCompass();
-
-      if (compass_y_cos == 0)
-        heading = (compass_x_cos < 0) ? PI : 0;
-      else
-        heading = -atan2(compass_y_cos, compass_x_cos);
-      heading -= DECLINATION * PI / 180;
-
-      float dir = -0.8;
-      float error = heading - dir;
-
-      while (error > PI) {
-        error -= 2 * PI;
-      }
-      while (error < -PI) {
-        error += 2 * PI;
-      }
-      if (analogRead(leftSensor) >= 650) {
-        motor(-100, -50);
-        delay(1550);
-      }
-      else if (analogRead(rightSensor) >= 650) {
-        motor(-50, -100);
-        delay(1550);
-      }
-      else {
-        motor(min(100, max(0, 255 - error * 150)), min(100, max(0, 255 + error * 150)));
-      }
-      break;
-    case 2: // 10 Pitch and Yaw Test
-      if (lastMode != 2) { // mode change, print
-        lastMode = 2;
-        motor(0, 0);
-        Serial.println("[10] Read Pitch/Yaw");
-        delay(3000);
-      }
+      Serial.println("Current Values:");
+      Serial.println("X: Avg:: " + String(compass_x_ave) + " || Mag:: " + String(compass_x_mag));
+      Serial.println("Y: Avg:: " + String(compass_y_ave) + " || Mag:: " + String(compass_y_mag));
+      Serial.println("Z: Avg:: " + String(compass_z_ave) + " || Mag:: " + String(compass_z_mag) + "\n");
+      delay(2500);
+      Serial.println("Pitch || Roll || Heading");
+      delay(100);
+    }
+    
+    getOneHeading();
+    getOneTRHeading();
+    Serial.print(pitch);
+    Serial.print(" || ");
+    Serial.print(roll);
+    Serial.print(" || ");
+    Serial.println(heading);
+    delay(500);
+  }
+  else if (digitalRead(switch0) == 0 && digitalRead(switch1) == 1) { // West
+    if (lastMode != 1) { // mode change, print
+      lastMode = 1;
+      Serial.println("[01] Go West\n");
       motor(0, 0);
+      delay(3000);
+    }
+    read9DoF();
+    getCompass();
 
-      getOneHeading();
-      //getOneTRHeading();
-      break;
-    case 3: // 11 Follow the wall test
-      if (lastMode != 3)
-      { // mode change, print
+    if (compass_y_cos == 0)
+      heading = (compass_x_cos < 0) ? PI : 0;
+    else
+      heading = -atan2(compass_y_cos, compass_x_cos);
+    heading -= DECLINATION * PI / 180;
+
+    float dir = -0.8;
+    float error = heading - dir;
+
+    while (error > PI) {
+      error -= 2 * PI;
+    }
+    while (error < -PI) {
+      error += 2 * PI;
+    }
+    if (analogRead(leftSensor) >= 650) {
+      motor(-100, -50);
+      delay(1550);
+    }
+    else if (analogRead(rightSensor) >= 650) {
+      motor(-50, -100);
+      delay(1550);
+    }
+    else {
+      motor(min(100, max(0, 255 - error * 150)), min(100, max(0, 255 + error * 150)));
+    }
+  }
+  else { // NA
+     if (lastMode != 3)
+      {
         lastMode = 3;
         motor(0, 0);
-        Serial.println("[11] NA");
+        Serial.println("[11] <!> EMPTY <!>\n");
         delay(3000);
       }
-      Serial.println("L: " + String(analogRead(leftSensor)));
-      Serial.println("R: " + String(analogRead(rightSensor)));
-      break;
-    default:
-      motor(0, 0);
-      Serial.println("\nDefault\n");
-      break;
+      Serial.println("...");
+      delay(500);
   }
-*/
 }
 
 void motor(int left, int right) { // converts signals in range(-255, 255) to motor pon signals
@@ -212,44 +205,20 @@ void read9DoF() {
 void getCompass() {
   if ( imu.magAvailable() )
   {
-
-    // To read from the magnetometer, first call the
-    // readMag() function. When it exits, it'll update the
-    // mx, my, and mz variables with the most current data.
-    //
     imu.readMag();
     compass_x = imu.mx;
     compass_y = imu.my;
     compass_z = imu.mz;
-
-    //  Here is where the magnetic field gets converted to a unit vector
-    //  Note the various signs that force +X = forward, +Y = right, +Z = down
-    //  The orientation of your LSM9DS1 might make things different
-    //
-    //  But USE A RIGHT HANDED COORDINATE SYSTEM !!!!!
-    //
-    //  The global variables that end in _mag and _ave are from the calibration
-    //
+    
     compass_x_cos = -(compass_x - compass_x_ave) / compass_x_mag;
     compass_y_cos = (compass_y - compass_y_ave) / compass_y_mag;
     compass_z_cos = -(compass_z - compass_z_ave) / compass_z_mag;
     compass_mag = sqrt(compass_x_cos * compass_x_cos + compass_y_cos * compass_y_cos + compass_z_cos * compass_z_cos);
 
-    //Serial.print("***   Compass cosines before narmalizing: x = ");
-    //Serial.print(compass_x_cos);
-    //Serial.print(", y = ");
-    //Serial.print(compass_y_cos);
-    //Serial.print(", z = ");
-    //Serial.print(compass_z_cos);
-    //Serial.print(", Mag = ");
-    //Serial.println(compass_mag);
-
-    //  Normalize it !!!  (Make a vector of length 1 pointing along Earth's field)
     compass_x_cos = compass_x_cos / compass_mag;
     compass_y_cos = compass_y_cos / compass_mag;
     compass_z_cos = compass_z_cos / compass_mag;
     compass_mag = sqrt(compass_x_cos * compass_x_cos + compass_y_cos * compass_y_cos + compass_z_cos * compass_z_cos);
-
   }
 }
 
@@ -266,16 +235,9 @@ void getOneHeading() {
 
   heading -= DECLINATION * PI / 180;
 
-  //  if (heading > PI) heading -= (2 * PI);
-  //  else if (heading < -PI) heading += (2 * PI);
-  //
-  //  The challenge beacon transmits 0-180 which you need to
-  //  multiply by 2 to get 0-360 (instead of -180 - 180)
-  //
   if (heading > 2 * PI) heading -= (2 * PI);
   else if (heading < 0) heading += (2 * PI);
 
-  // Convert from radians to degrees:
   heading *= 180.0 / PI;
 
 }
