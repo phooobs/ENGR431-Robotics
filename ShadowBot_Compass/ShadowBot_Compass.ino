@@ -65,97 +65,78 @@ void setup() {
                    "if the board jumpers are.");
     while (1);
   }
-  //Serial.println("S1  S2\n");
 }
 
 void loop() {
   static int lastMode = -1; // keep track of what mode we are on so when there is a change it can be detected, -1 means no last mode
-  //Serial.println(String(digitalRead(switch0)) + "    " + String(digitalRead(switch1)));
-  switch (2 * digitalRead(switch1) + digitalRead(switch0)) { // get input from switches and convert to mode number
-    case 0: // 00 Sit, wait and blink, repeat.
-      if (lastMode != 0) { // mode change, print
-        lastMode = 0;
-        motor(0, 0);
-        Serial.println("[00] blink and wait");
-        delay(3000);
-      }
-      static bool toggle;
-      if (toggle) {
-        toggle = false;
-      } else {
-        toggle = true;
-      }
-      digitalWrite(led, toggle);
+
+  if (digitalRead(switch0) == 0 && digitalRead(switch1) == 0) { // Sit
+    if (lastMode != 0) {
+      lastMode = 0;
       motor(0, 0);
-      delay(500);
-      break;
-
-    case 1: // 01 Straight and speed test.
-      if (lastMode != 1) { // mode change, print
-        lastMode = 1;
-        Serial.println("[01] Go West");
-        motor(0, 0);
-        delay(3000);
-      }
-      read9DoF();
-      getCompass();
-
-      if (compass_y_cos == 0)
-        heading = (compass_x_cos < 0) ? PI : 0;
-      else
-        heading = -atan2(compass_y_cos, compass_x_cos);
-      heading -= DECLINATION * PI / 180;
-
-      float dir = -0.8;
-      float error = heading - dir;
-
-      while (error > PI) {
-        error -= 2 * PI;
-      }
-      while (error < -PI) {
-        error += 2 * PI;
-      }
-      if (analogRead(leftSensor) >= 650) {
-        motor(-100, -50);
-        delay(1550);
-      }
-      else if (analogRead(rightSensor) >= 650) {
-        motor(-50, -100);
-        delay(1550);
-      }
-      else {
-        motor(min(100, max(0, 255 - error * 150)), min(100, max(0, 255 + error * 150)));
-      }
-      break;
-    case 2: // 10 Pitch and Yaw Test
-      if (lastMode != 2) { // mode change, print
-        lastMode = 2;
-        motor(0, 0);
-        Serial.println("[10] Read Pitch/Yaw");
-        delay(3000);
-      }
+      Serial.println("[00] Standing By...\n");
+      delay(3000);
+    }
+  }
+  else if (digitalRead(switch0) == 1 && digitalRead(switch1) == 0) { // PRY 
+    if (lastMode != 2) {
+      lastMode = 2;
       motor(0, 0);
+      Serial.println("[10] Read Pitch/Yaw/Roll\n");
+      delay(3000);
+    }
+    getOneHeading();
+    getOneTRHeading();
+    
+  }
+  else if (digitalRead(switch0) == 0 && digitalRead(switch1) == 1) { // West
+    if (lastMode != 1) { // mode change, print
+      lastMode = 1;
+      Serial.println("[01] Go West\n");
+      motor(0, 0);
+      delay(3000);
+    }
+    read9DoF();
+    getCompass();
 
-      getOneHeading();
-      //getOneTRHeading();
-      break;
-    case 3: // 11 Follow the wall test
-      if (lastMode != 3)
-      { // mode change, print
+    if (compass_y_cos == 0)
+      heading = (compass_x_cos < 0) ? PI : 0;
+    else
+      heading = -atan2(compass_y_cos, compass_x_cos);
+    heading -= DECLINATION * PI / 180;
+
+    float dir = -0.8;
+    float error = heading - dir;
+
+    while (error > PI) {
+      error -= 2 * PI;
+    }
+    while (error < -PI) {
+      error += 2 * PI;
+    }
+    if (analogRead(leftSensor) >= 650) {
+      motor(-100, -50);
+      delay(1550);
+    }
+    else if (analogRead(rightSensor) >= 650) {
+      motor(-50, -100);
+      delay(1550);
+    }
+    else {
+      motor(min(100, max(0, 255 - error * 150)), min(100, max(0, 255 + error * 150)));
+    }
+  }
+  else { // NA
+     if (lastMode != 3)
+      {
         lastMode = 3;
         motor(0, 0);
-        Serial.println("[11] NA");
+        Serial.println("[11] <!> EMPTY <!>\n");
         delay(3000);
       }
-      Serial.println("L: " + String(analogRead(leftSensor)));
-      Serial.println("R: " + String(analogRead(rightSensor)));
-      break;
-    default:
-      motor(0, 0);
-      Serial.println("\nDefault\n");
-      break;
+      Serial.println("...");
+      delay(500);
   }
-*/
 }
 
 void motor(int left, int right) { // converts signals in range(-255, 255) to motor pon signals
