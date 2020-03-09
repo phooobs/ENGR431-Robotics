@@ -32,12 +32,12 @@ float compass_x_cos, compass_y_cos, compass_z_cos, compass_mag;
 LSM9DS1 imu;
 
 // CALABRATION
-float compass_x_ave = 1795.00;
-float compass_y_ave = -1307.00;
-float compass_z_ave = -524.00;
-float compass_x_mag = 2762.00;
-float compass_y_mag = 2766.00;
-float compass_z_mag = 2575.00;
+float compass_x_ave = 2100.0;
+float compass_y_ave = -1590.0;
+float compass_z_ave = -773.0;
+float compass_x_mag = 3394.0;
+float compass_y_mag = 3128.0;
+float compass_z_mag = 3180.0;
 float pitch, roll, heading;
 
 void setup() {
@@ -91,15 +91,14 @@ void loop() {
       Serial.println("Pitch || Roll || Heading");
       delay(100);
     }
-    //getOneHeading();
     getOneTRHeading();
-    /*
+    
     Serial.print(pitch);
     Serial.print(" || ");
     Serial.print(roll);
     Serial.print(" || ");
-    Serial.println(heading); */
-    delay(500);
+    Serial.println(heading);
+    //delay(500);
   }
   else if (digitalRead(switch0) == 0 && digitalRead(switch1) == 1) { // West
     if (lastMode != 1) { // mode change, print
