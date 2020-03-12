@@ -1,14 +1,5 @@
 #include <PololuMaestro.h>
 
-#ifdef SERIAL_PORT_HARDWARE_OPEN
-  #define maestroSerial SERIAL_PORT_HARDWARE_OPEN
-#else
-  #include <SoftwareSerial.h>
-  SoftwareSerial maestroSerial(10, 11);
-#endif
-
-MiniMaestro maestro(maestroSerial);
-
 // class for poseing a leg
 // +x : right, +y : forward, +z : up
 class Leg {
@@ -57,9 +48,9 @@ class Leg {
     void pose (float x, float y, float z) {
       float hipYawl, hipPitch, kneePitch;
       calculateAngles(x, y, z, &hipYawl, &hipPitch, &kneePitch);
-      maestro->setTarget(hipYawlServo, convertAngle(hipYawl));
-      maestro->setTarget(hipPitchServo, convertAngle(hipPitch));
-      maestro->setTarget(kneePitchServo, convertAngle(kneePitch));
+      maestro_->setTarget(hipYawlServo_, convertAngle(hipYawl));
+      maestro_->setTarget(hipPitchServo_, convertAngle(hipPitch));
+      maestro_->setTarget(kneePitchServo_, convertAngle(kneePitch));
     }
 
     // converts angle in radians to pololu signal
