@@ -28,7 +28,7 @@ class Leg {
       float hipOffsetY = hipLength_ * cos(*hipYawl - hipRootAngle_);
       float distanceToPoint = sqrt(pow(x - hipRootX_ - hipOffsetX, 2) + pow(y - hipRootY_ - hipOffsetY, 2) + pow(z - hipRootZ_, 2));
       int sign;
-      if (sqrt(pow(x - hipRootX_ - hipOffsetX, 2) + pow(y - hipRootY_ - hipOffsetY, 2)) < hipLength_) {
+      if (sqrt(pow(x - hipRootX_, 2) + pow(y - hipRootY_, 2)) < hipLength_) {
         sign = -1;
       } else {
         sign = 1;
